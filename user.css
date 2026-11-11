@@ -1,0 +1,297 @@
+/* ==========================================================================
+   Aura Glass — tema Liquid Glass para Spotify (Spicetify)
+   Capa de contenido: portada desenfocada a pantalla completa.
+   Capa funcional (cristal): barra lateral, barra superior, panel derecho
+   y la cápsula flotante del reproductor.
+   ========================================================================== */
+
+:root {
+  --aura-tint: 28, 28, 34;          /* lo actualiza theme.js con la portada */
+  --aura-blur: 36px;
+  --aura-saturate: 1.45;
+  --aura-radius: 22px;
+  --aura-gap: 10px;
+
+  /* Cristal "regular": relleno oscuro teñido + filo de luz */
+  --aura-fill: rgba(var(--aura-tint), 0.52);
+  --aura-fill-strong: rgba(var(--aura-tint), 0.66);
+  --aura-edge: rgba(255, 255, 255, 0.14);
+  --aura-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                       inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+  --aura-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.55);
+
+  /* Material del contenido (no es cristal: oscurece para leer bien) */
+  --aura-content: rgba(10, 10, 14, 0.42);
+
+  --aura-ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ---------- Capa de fondo ---------------------------------------------- */
+
+body {
+  background: #0B0B0F !important;
+}
+
+#aura-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#aura-backdrop .aura-layer {
+  position: absolute;
+  inset: -12%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(90px) saturate(1.6) brightness(0.62);
+  transform: scale(1.15);
+  opacity: 0;
+  transition: opacity 1.2s var(--aura-ease);
+  animation: aura-drift 60s ease-in-out infinite alternate;
+}
+
+#aura-backdrop .aura-layer.is-visible {
+  opacity: 1;
+}
+
+#aura-backdrop .aura-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.35) 100%),
+    rgba(8, 8, 12, 0.18);
+}
+
+@keyframes aura-drift {
+  from { transform: scale(1.15) translate3d(-2%, -1%, 0) rotate(0deg); }
+  to   { transform: scale(1.25) translate3d(2%, 1.5%, 0) rotate(4deg); }
+}
+
+/* Todo lo de Spotify por encima del fondo y sin su color plano */
+.Root__top-container {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+  gap: var(--aura-gap);
+}
+
+/* ---------- Cristal: receta común --------------------------------------- */
+
+.Root__nav-bar,
+.Root__right-sidebar aside,
+.Root__now-playing-bar .main-nowPlayingBar-container,
+.Root__globalNav .main-globalNav-searchContainer [role="search"],
+.Root__globalNav .main-globalNav-searchSection input {
+  background: var(--aura-fill) !important;
+  -webkit-backdrop-filter: blur(var(--aura-blur)) saturate(var(--aura-saturate));
+  backdrop-filter: blur(var(--aura-blur)) saturate(var(--aura-saturate));
+  border: 1px solid var(--aura-edge);
+  box-shadow: var(--aura-highlight), var(--aura-shadow);
+  transition: background-color 0.8s var(--aura-ease);
+}
+
+/* Barra lateral (Tu biblioteca): cristal más opaco por tener mucho texto */
+.Root__nav-bar {
+  background: var(--aura-fill-strong) !important;
+  border-radius: var(--aura-radius) !important;
+  overflow: hidden;
+}
+
+.Root__nav-bar *,
+.main-yourLibraryX-entryPoints {
+  --background-base: transparent;
+  --background-highlight: rgba(255, 255, 255, 0.08);
+  --background-press: rgba(255, 255, 255, 0.12);
+}
+
+.main-yourLibraryX-entryPoints,
+.main-yourLibraryX-libraryContainer,
+.main-yourLibraryX-library {
+  background: transparent !important;
+}
+
+/* ---------- Barra superior --------------------------------------------- */
+
+.Root__globalNav {
+  background: transparent !important;
+}
+
+.Root__globalNav .main-globalNav-navLink,
+.Root__globalNav button[data-testid="home-button"],
+.Root__globalNav .main-topBar-buddyFeed,
+.Root__globalNav .main-userWidget-box {
+  background: rgba(255, 255, 255, 0.10) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid var(--aura-edge);
+  box-shadow: var(--aura-highlight);
+}
+
+.Root__globalNav .main-globalNav-searchContainer [role="search"],
+.Root__globalNav .main-globalNav-searchSection input {
+  border-radius: 999px !important;
+}
+
+/* ---------- Vista principal (contenido: sin cristal) -------------------- */
+
+.Root__main-view {
+  background: var(--aura-content) !important;
+  border-radius: var(--aura-radius) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.Root__main-view .main-view-container,
+.Root__main-view .main-view-container__scroll-node,
+.main-entityHeader-backgroundColor,
+.main-entityHeader-overlay,
+.main-actionBarBackground-background,
+.main-home-homeHeader,
+.main-topBar-background {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* La barra de arriba al hacer scroll: borde de cristal en vez de color sólido */
+.main-topBar-overlay {
+  background: rgba(var(--aura-tint), 0.45) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+}
+
+/* Tarjetas y filas: leves, el contenido manda */
+.main-card-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-radius: 16px !important;
+  transition: background-color 0.25s var(--aura-ease), transform 0.25s var(--aura-ease);
+}
+
+.main-card-card:hover {
+  background: rgba(255, 255, 255, 0.09) !important;
+}
+
+.main-trackList-trackListRow {
+  border-radius: 10px;
+}
+
+.main-trackList-trackListRow:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ---------- Panel derecho (reproduciendo / cola) ------------------------ */
+
+.Root__right-sidebar,
+.Root__right-sidebar > div {
+  background: transparent !important;
+}
+
+.Root__right-sidebar aside {
+  background: var(--aura-fill-strong) !important;
+  border-radius: var(--aura-radius) !important;
+}
+
+.Root__right-sidebar aside * {
+  --background-base: transparent;
+  --background-elevated-base: rgba(255, 255, 255, 0.06);
+  --background-tinted-base: rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Reproductor: cápsula de cristal flotante (firma del tema) --- */
+
+.Root__now-playing-bar {
+  background: transparent !important;
+  padding: 2px var(--aura-gap) var(--aura-gap) !important;
+}
+
+.Root__now-playing-bar .main-nowPlayingBar-container {
+  border-radius: 999px !important;
+  padding-inline: 18px;
+  min-height: 72px;
+}
+
+.Root__now-playing-bar .main-nowPlayingWidget-coverArt img,
+.Root__now-playing-bar [data-testid="cover-art-image"] {
+  border-radius: 12px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Botón de reproducir: el único elemento destacado */
+.main-playButton-PlayButton button span,
+.Root__now-playing-bar [data-testid="control-button-playpause"] {
+  background: #F5F5F7 !important;
+  color: #0B0B0F !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Barra de progreso: fina y luminosa */
+.progress-bar {
+  --bg-color: rgba(255, 255, 255, 0.18);
+  --fg-color: #F5F5F7;
+  --progress-bar-height: 4px;
+  --progress-bar-radius: 999px;
+}
+
+.progress-bar:hover {
+  --fg-color: #FFFFFF;
+}
+
+/* ---------- Detalles -------------------------------------------------- */
+
+/* Menús contextuales y diálogos: cristal */
+.main-contextMenu-menu,
+#context-menu ul,
+[data-tippy-root] .main-contextMenu-menu {
+  background: rgba(var(--aura-tint), 0.72) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(1.5);
+  backdrop-filter: blur(30px) saturate(1.5);
+  border: 1px solid var(--aura-edge);
+  border-radius: 14px !important;
+  box-shadow: var(--aura-highlight), 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Barras de scroll discretas */
+.os-scrollbar-handle {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-radius: 999px !important;
+}
+
+/* Foco visible con teclado */
+:focus-visible {
+  outline: 2px solid rgba(245, 245, 247, 0.85) !important;
+  outline-offset: 2px;
+}
+
+/* ---------- Accesibilidad --------------------------------------------- */
+
+/* Reducir transparencia → superficies opacas */
+@media (prefers-reduced-transparency: reduce) {
+  #aura-backdrop { display: none; }
+  .Root__nav-bar,
+  .Root__right-sidebar aside,
+  .Root__now-playing-bar .main-nowPlayingBar-container,
+  .Root__main-view,
+  .main-contextMenu-menu {
+    background: var(--spice-sidebar) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* Más contraste → bordes y relleno más firmes */
+@media (prefers-contrast: more) {
+  :root {
+    --aura-fill: rgba(var(--aura-tint), 0.82);
+    --aura-fill-strong: rgba(var(--aura-tint), 0.9);
+    --aura-edge: rgba(255, 255, 255, 0.4);
+    --aura-content: rgba(10, 10, 14, 0.75);
+  }
+}
+
+/* Reducir movimiento → fondo quieto y sin fundidos */
+@media (prefers-reduced-motion: reduce) {
+  #aura-backdrop .aura-layer {
+    animation: none;
+    transition: none;
+  }
+}
