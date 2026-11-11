@@ -17,6 +17,32 @@ Aura Glass es un tema para [Spicetify](https://spicetify.app) inspirado en el Li
 - **No se come tu ordenador.** Las animaciones se paran cuando Spotify está en segundo plano, y el modo "Bajo consumo" reduce el desenfoque y quita las animaciones.
 - **Accesible.** Respeta "reducir transparencia", "más contraste" y "reducir movimiento" de tu sistema, y todo el panel y el escaparate se manejan con teclado.
 
+## Así se ve
+
+### El reproductor se tiñe con cada portada
+
+Botones, tiempos, barra de progreso, volumen y el botón de play cambian de color con la portada que suena. Aquí, el mismo reproductor con cuatro colores distintos:
+
+![Reproductor con cuatro colores](capturas/colores.png)
+
+### La portada es un disco que gira
+
+Redonda, con el agujero central de un vinilo. Gira mientras suena y se para al pausar.
+
+![Portada en forma de disco](capturas/disco.png)
+
+### Modo escaparate (`Alt + S`)
+
+Pantalla completa con la portada, el vinilo girando, el reloj y la letra sincronizada: lo que ya sonó se atenúa, el verso actual brilla y lo que viene espera desenfocado.
+
+![Modo escaparate](capturas/escaparate.png)
+
+### Panel de ajustes
+
+Color del cristal, desenfoque, opacidad, redondeo, brillo, efectos y temporizador de apagado. Sin tocar código.
+
+![Panel de ajustes](capturas/ajustes.png)
+
 ## Instalación
 
 ### Desde el Marketplace (recomendado)

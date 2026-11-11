@@ -21,7 +21,9 @@ if ($LASTEXITCODE -ne 0) {
 git push origin main
 
 $repo = "issacleral/aura-glass-spicetify"
-$archivos = "manifest.json", "user.css", "color.ini", "theme.js", "README.md", "preview.png"
+$archivos = @("manifest.json", "user.css", "color.ini", "theme.js", "README.md", "preview.png") +
+  (Get-ChildItem -LiteralPath "$PSScriptRoot\capturas" -Filter *.png -ErrorAction SilentlyContinue |
+    ForEach-Object { "capturas/" + $_.Name })
 
 Write-Host "Vaciando la caché de jsDelivr..."
 foreach ($f in $archivos) {

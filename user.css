@@ -293,6 +293,13 @@ body {
   transition: background-color 0.8s var(--aura-ease), box-shadow 0.8s var(--aura-ease);
 }
 
+/* Spotify pinta el círculo con un <span> interior: también lleva el acento */
+.Root__now-playing-bar [data-testid="control-button-playpause"] > span {
+  background: var(--aura-accent) !important;
+  color: #0B0B0F !important;
+  transition: background-color 0.8s var(--aura-ease);
+}
+
 .Root__now-playing-bar [data-testid="control-button-playpause"] svg {
   fill: #0B0B0F !important;
 }
