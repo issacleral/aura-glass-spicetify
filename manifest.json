@@ -5,7 +5,7 @@
   "readme": "README.md",
   "usercss": "user.css",
   "schemes": "color.ini",
-  "include": ["https://issacleral.github.io/aura-glass-spicetify/theme.js"],
+  "include": ["https://cdn.jsdelivr.net/gh/issacleral/aura-glass-spicetify@main/theme.js"],
   "authors": [{ "name": "issacleral", "url": "https://github.com/issacleral" }],
   "tags": ["dark", "glass", "blur", "apple", "lyrics", "vinyl"]
 }

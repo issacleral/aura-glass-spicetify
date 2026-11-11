@@ -1,35 +1,39 @@
 # Aura Glass
 
-Tema para [Spicetify](https://spicetify.app) inspirado en el Liquid Glass de Apple.
+**Spotify, pero de cristal.** Cada canción tiñe la app entera con los colores de su portada.
 
-![Vista previa](preview.png)
+Aura Glass es un tema para [Spicetify](https://spicetify.app) inspirado en el Liquid Glass de Apple. La portada de lo que suena se convierte en el fondo, los paneles son de cristal esmerilado que toma su color y el reproductor flota como una cápsula con un disco que gira. Pones otra canción y todo cambia de color con ella.
 
-## Cómo es
+![Aura Glass](preview.png)
 
-- **Fondo vivo**: la portada de la canción que suena, desenfocada a pantalla completa, con un movimiento lento y un fundido al cambiar de canción.
-- **Cristal teñido**: la barra lateral, la barra superior, el panel derecho y los menús son de cristal esmerilado, teñido con el color de la portada.
-- **Reproductor en cápsula**: el reproductor flota como una cápsula de cristal y el botón de play es el único elemento destacado.
-- **El contenido se lee primero**: la vista central no lleva cristal, solo un oscurecido suave para que el texto se lea bien.
-- **Accesible**: respeta "reducir transparencia", "más contraste" y "reducir movimiento" del sistema.
+## Por qué te va a gustar
 
-## Funciones
-
-- **Panel de ajustes** (icono de paleta arriba a la izquierda): color del cristal (de la portada, 4 paletas o uno propio, que se oscurece solo para que el texto siga legible), desenfoque, opacidad, redondeo, brillo del fondo y efectos. Todo se guarda y tiene botón de restablecer.
-- **Modo escaparate** (`Alt + S` o el icono de disco): pantalla completa con la portada, un vinilo que gira mientras suena, reloj, controles y **letras sincronizadas**. Las líneas lejanas se desenfocan, la activa brilla y **un clic en cualquier línea salta a ese momento**. La barra de progreso funciona con el ratón y con las flechas (Mayús para saltos de 30 s). `Esc` para salir.
-- **Temporizador de apagado**: 15, 30, 45 o 60 minutos, o al acabar la canción. **Baja el volumen poco a poco** antes de pausar y luego lo devuelve a su nivel.
-- **Mini ecualizador** junto a la canción, que se queda quieto en pausa.
-- **Foco de luz** que sigue al ratón sobre las tarjetas.
-- **Bajo consumo**: menos desenfoque y sin animaciones. Además, el tema deja de animar cuando Spotify está en segundo plano.
+- **Cambia con tu música.** El fondo, el tinte del cristal, los botones, la barra de progreso y el volumen se adaptan a la portada de cada canción. Nunca se ve igual dos veces.
+- **Un reproductor con alma de vinilo.** La portada es un disco que gira mientras suena y se para cuando pausas.
+- **Modo escaparate para dejarlo puesto.** Pulsa `Alt + S` y Spotify se convierte en una pantalla para el salón o el segundo monitor: vinilo girando, reloj, controles y la **letra sincronizada**, que se enfoca verso a verso. Haz clic en cualquier línea y la canción salta a ese momento.
+- **Lo ajustas sin tocar código.** Un panel con el color del cristal (el de la portada, 4 paletas o el tuyo), desenfoque, opacidad, redondeo y brillo. Los cambios se ven al momento y se guardan.
+- **Temporizador para dormirte con música.** Elige 15, 30, 45 o 60 minutos, o "al acabar la canción". El volumen baja poco a poco antes de pausar, sin cortes bruscos, y luego vuelve a su nivel.
+- **Bonito y legible.** El cristal va en las barras y los paneles, nunca encima de tus listas. Si la portada da un color poco legible, el tema lo aclara solo para que siempre se lea bien.
+- **No se come tu ordenador.** Las animaciones se paran cuando Spotify está en segundo plano, y el modo "Bajo consumo" reduce el desenfoque y quita las animaciones.
+- **Accesible.** Respeta "reducir transparencia", "más contraste" y "reducir movimiento" de tu sistema, y todo el panel y el escaparate se manejan con teclado.
 
 ## Instalación
 
-### Desde el Marketplace
+### Desde el Marketplace (recomendado)
 
-Abre el Marketplace de Spicetify en Spotify, ve a **Themes**, busca **Aura Glass** e instálalo.
+1. Abre Spotify con Spicetify y entra en el **Marketplace** (el icono del carrito).
+2. Ve a **Temas**, busca **Aura Glass** y pulsa **Instalar**.
+
+Si el Marketplace te pide poner `current_theme` en `marketplace`, ejecuta esto y vuelve a abrir Spotify:
+
+```bash
+spicetify config current_theme marketplace
+spicetify apply
+```
 
 ### A mano
 
-1. Copia esta carpeta en la carpeta de temas de Spicetify:
+1. Copia esta carpeta en la carpeta de temas de Spicetify, con el nombre `AuraGlass`:
    - Windows: `%APPDATA%\spicetify\Themes\AuraGlass`
    - macOS / Linux: `~/.config/spicetify/Themes/AuraGlass`
 2. Ejecuta:
@@ -39,25 +43,24 @@ spicetify config current_theme AuraGlass color_scheme Noche inject_css 1 replace
 spicetify apply
 ```
 
-## Personalizar
+## Cómo se usa
 
-Las variables están al principio de `user.css`:
-
-| Variable | Qué cambia |
+| Para… | Haz… |
 | --- | --- |
-| `--aura-blur` | Desenfoque del cristal |
-| `--aura-fill`, `--aura-fill-strong` | Opacidad del cristal |
-| `--aura-radius` | Redondeo de los paneles |
-| `--aura-content` | Oscurecido de la vista central |
+| Abrir los ajustes | Icono de paleta, arriba a la izquierda |
+| Entrar en el modo escaparate | `Alt + S` o el icono de disco, arriba a la izquierda |
+| Salir del modo escaparate | `Esc` o la ✕ |
+| Saltar a un verso | Clic en la línea de la letra (en el escaparate) |
+| Adelantar o retroceder | Flechas sobre la barra de progreso (`Mayús` para 30 s) |
+| Programar el apagado | Ajustes → Temporizador de apagado |
 
 ## Requisitos
 
-Spotify de escritorio (no la versión de Microsoft Store) y Spicetify 2.x. Probado con Spotify 1.3.8 y Spicetify 2.46.4.
+- Spotify de escritorio. La versión de Microsoft Store no admite Spicetify.
+- Spicetify 2.x.
+
+Probado con Spotify 1.3.8 y Spicetify 2.46.4 en Windows 11.
 
 ## Licencia
 
 MIT
-
-## Créditos
-
-Algunas ideas (panel de ajustes, modo escaparate con vinilo, mini ecualizador, foco en tarjetas y temporizador) están inspiradas en [AuraGlass de musicallyivan](https://github.com/musicallyivan/AuraGlass). El código de este tema está escrito desde cero.
