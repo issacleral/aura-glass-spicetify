@@ -29,7 +29,7 @@ Botones, tiempos, barra de progreso, volumen y el botón de play cambian de colo
 
 Redonda, con el agujero central de un vinilo. Gira mientras suena y se para al pausar.
 
-![Portada en forma de disco](capturas/disco.png)
+![Portada en forma de disco girando](capturas/disco.gif)
 
 ### Modo escaparate (`Alt + S`)
 
