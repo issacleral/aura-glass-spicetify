@@ -1,11 +1,11 @@
 {
   "name": "Aura Glass",
-  "description": "Liquid Glass para Spotify: la portada desenfocada de fondo, paneles de cristal teñidos con el color de cada canción y el reproductor como cápsula flotante.",
+  "description": "Liquid Glass para Spotify: portada desenfocada de fondo, cristal teñido con cada canción, panel de ajustes, modo escaparate con vinilo y letras sincronizadas, y temporizador de apagado.",
   "preview": "preview.png",
   "readme": "README.md",
   "usercss": "user.css",
   "schemes": "color.ini",
   "include": ["https://issacleral.github.io/aura-glass-spicetify/theme.js"],
   "authors": [{ "name": "issacleral", "url": "https://github.com/issacleral" }],
-  "tags": ["dark", "glass", "blur", "apple"]
+  "tags": ["dark", "glass", "blur", "apple", "lyrics", "vinyl"]
 }

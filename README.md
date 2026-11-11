@@ -12,6 +12,15 @@ Tema para [Spicetify](https://spicetify.app) inspirado en el Liquid Glass de App
 - **El contenido se lee primero**: la vista central no lleva cristal, solo un oscurecido suave para que el texto se lea bien.
 - **Accesible**: respeta "reducir transparencia", "más contraste" y "reducir movimiento" del sistema.
 
+## Funciones
+
+- **Panel de ajustes** (icono de paleta arriba a la izquierda): color del cristal (de la portada, 4 paletas o uno propio, que se oscurece solo para que el texto siga legible), desenfoque, opacidad, redondeo, brillo del fondo y efectos. Todo se guarda y tiene botón de restablecer.
+- **Modo escaparate** (`Alt + S` o el icono de disco): pantalla completa con la portada, un vinilo que gira mientras suena, reloj, controles y **letras sincronizadas**. Las líneas lejanas se desenfocan, la activa brilla y **un clic en cualquier línea salta a ese momento**. La barra de progreso funciona con el ratón y con las flechas (Mayús para saltos de 30 s). `Esc` para salir.
+- **Temporizador de apagado**: 15, 30, 45 o 60 minutos, o al acabar la canción. **Baja el volumen poco a poco** antes de pausar y luego lo devuelve a su nivel.
+- **Mini ecualizador** junto a la canción, que se queda quieto en pausa.
+- **Foco de luz** que sigue al ratón sobre las tarjetas.
+- **Bajo consumo**: menos desenfoque y sin animaciones. Además, el tema deja de animar cuando Spotify está en segundo plano.
+
 ## Instalación
 
 ### Desde el Marketplace
@@ -48,3 +57,7 @@ Spotify de escritorio (no la versión de Microsoft Store) y Spicetify 2.x. Proba
 ## Licencia
 
 MIT
+
+## Créditos
+
+Algunas ideas (panel de ajustes, modo escaparate con vinilo, mini ecualizador, foco en tarjetas y temporizador) están inspiradas en [AuraGlass de musicallyivan](https://github.com/musicallyivan/AuraGlass). El código de este tema está escrito desde cero.
