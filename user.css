@@ -214,21 +214,97 @@ body {
   min-height: 72px;
 }
 
-.Root__now-playing-bar .main-nowPlayingWidget-coverArt img,
-.Root__now-playing-bar [data-testid="cover-art-image"] {
-  border-radius: 12px !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+/* Portada como un disco: redonda, con el agujero central y girando
+   mientras suena. Se para en pausa, en segundo plano y con
+   "reducir movimiento". */
+.Root__now-playing-bar .main-nowPlayingWidget-coverArtContainer,
+.Root__now-playing-bar .main-nowPlayingWidget-coverArt,
+.Root__now-playing-bar .main-nowPlayingWidget-coverArt .cover-art {
+  border-radius: 50% !important;
 }
 
-/* Botón de reproducir: el único elemento destacado */
-.main-playButton-PlayButton button span,
+.Root__now-playing-bar .main-nowPlayingWidget-coverArt {
+  position: relative;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14), 0 0 18px -2px var(--aura-accent),
+              0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.Root__now-playing-bar .main-nowPlayingWidget-coverArt .cover-art {
+  overflow: hidden;
+  background: #0B0B0F;
+}
+
+.Root__now-playing-bar .main-nowPlayingWidget-coverArt img.cover-art-image {
+  border-radius: 50% !important;
+  animation: aura-spin 10s linear infinite;
+}
+
+/* Agujero del disco */
+.Root__now-playing-bar .main-nowPlayingWidget-coverArt::after {
+  content: "";
+  position: absolute;
+  inset: 41%;
+  border-radius: 50%;
+  background: rgba(var(--aura-tint), 1);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+
+.aura-paused .Root__now-playing-bar .main-nowPlayingWidget-coverArt img.cover-art-image,
+.aura-hidden .Root__now-playing-bar .main-nowPlayingWidget-coverArt img.cover-art-image,
+.aura-still .Root__now-playing-bar .main-nowPlayingWidget-coverArt img.cover-art-image {
+  animation-play-state: paused;
+}
+
+.aura-low-power .Root__now-playing-bar .main-nowPlayingWidget-coverArt img.cover-art-image {
+  animation: none;
+}
+
+/* Controles del reproductor con el color de la portada */
+.Root__now-playing-bar {
+  --text-bright-accent: var(--aura-accent);
+  --essential-bright-accent: var(--aura-accent);
+}
+
+.Root__now-playing-bar .player-controls__buttons button:not([data-testid="control-button-playpause"]),
+.Root__now-playing-bar .main-nowPlayingBar-right button {
+  color: var(--aura-accent) !important;
+  opacity: 0.85;
+  transition: opacity 0.2s var(--aura-ease), color 0.8s var(--aura-ease);
+}
+
+.Root__now-playing-bar .player-controls__buttons button:not([data-testid="control-button-playpause"]):hover,
+.Root__now-playing-bar .main-nowPlayingBar-right button:hover {
+  opacity: 1;
+}
+
+.Root__now-playing-bar [data-testid="playback-position"],
+.Root__now-playing-bar [data-testid="playback-duration"] {
+  color: var(--aura-accent) !important;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Botón de reproducir: el único elemento relleno, con el color de la portada */
 .Root__now-playing-bar [data-testid="control-button-playpause"] {
+  background: var(--aura-accent) !important;
+  color: #0B0B0F !important;
+  box-shadow: 0 4px 16px -2px var(--aura-accent), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: background-color 0.8s var(--aura-ease), box-shadow 0.8s var(--aura-ease);
+}
+
+.Root__now-playing-bar [data-testid="control-button-playpause"] svg {
+  fill: #0B0B0F !important;
+}
+
+/* Botones grandes de play en las páginas: blancos, para no competir con el reproductor */
+.main-playButton-PlayButton button span {
   background: #F5F5F7 !important;
   color: #0B0B0F !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-/* Barra de progreso: fina y luminosa */
+/* Barras de progreso y volumen: finas, con el color de la portada (también al pasar el ratón) */
 .progress-bar {
   --bg-color: rgba(255, 255, 255, 0.18);
   --fg-color: #F5F5F7;
@@ -236,8 +312,14 @@ body {
   --progress-bar-radius: 999px;
 }
 
-.progress-bar:hover {
-  --fg-color: #FFFFFF;
+.Root__now-playing-bar .progress-bar {
+  --fg-color: var(--aura-accent);
+  --is-active-fg-color: var(--aura-accent);
+  --mg-color: rgba(255, 255, 255, 0.45);
+}
+
+.Root__now-playing-bar .progress-bar:hover {
+  filter: drop-shadow(0 0 6px var(--aura-accent));
 }
 
 /* ---------- Detalles -------------------------------------------------- */
@@ -884,6 +966,7 @@ body {
 /* Movimiento reducido: sin giro, sin deriva, sin animación de letras */
 @media (prefers-reduced-motion: reduce) {
   .aura-eq i,
+  .Root__now-playing-bar .main-nowPlayingWidget-coverArt img.cover-art-image,
   .aura-sc-vinyl,
   .aura-sc-bg {
     animation: none !important;

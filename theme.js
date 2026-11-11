@@ -100,6 +100,27 @@
     img.src = url;
   }
 
+  // Luminancia relativa (WCAG).
+  function luminance(rgb) {
+    const lin = rgb.map((c) => {
+      const s = c / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+  }
+
+  // El acento colorea controles y el relleno del botón de play (con icono
+  // oscuro encima). Lo aclaramos mezclándolo con blanco hasta un contraste
+  // de al menos 7:1 con el icono #0B0B0F.
+  function legibleAccent(hex) {
+    let rgb = hexToRgb(hex) || [245, 245, 247];
+    const ink = luminance([11, 11, 15]);
+    for (let i = 0; i < 20 && (luminance(rgb) + 0.05) / (ink + 0.05) < 7; i++) {
+      rgb = rgb.map((c) => Math.round(c + (255 - c) * 0.12));
+    }
+    return "#" + rgb.map((c) => c.toString(16).padStart(2, "0")).join("");
+  }
+
   function applyColors() {
     let tint;
     let accent;
@@ -116,7 +137,7 @@
       accent = p.accent;
     }
     root.style.setProperty("--aura-tint", tint.join(","));
-    root.style.setProperty("--aura-accent", accent);
+    root.style.setProperty("--aura-accent", legibleAccent(accent));
   }
 
   function applySettings() {
