@@ -1,5 +1,5 @@
 // Aura Glass — Liquid Glass para Spotify (Spicetify)
-// Fondo con la portada, cristal teñido, panel de ajustes, modo escaparate
+// Kapak görselinden arka plan, renkli cam, ayarlar paneli ve vitrin modu
 // con letras sincronizadas, mini ecualizador, foco en tarjetas y temporizador.
 (function auraGlass() {
   const S = window.Spicetify;
@@ -17,13 +17,21 @@
 
   const STORE_KEY = "aura-glass:settings";
   const PRESETS = {
-    medianoche: { name: "Medianoche", tint: [24, 26, 46], accent: "#8EA2FF" },
-    glaciar: { name: "Glaciar", tint: [14, 40, 52], accent: "#7FE3F0" },
-    coral: { name: "Coral", tint: [52, 22, 28], accent: "#FF8A7A" },
-    bosque: { name: "Bosque", tint: [16, 40, 30], accent: "#7CE0A8" },
+    medianoche: { name: "midnight", tint: [24, 26, 46], accent: "#8EA2FF" },
+    glaciar: { name: "glacier", tint: [14, 40, 52], accent: "#7FE3F0" },
+    coral: { name: "coral", tint: [52, 22, 28], accent: "#FF8A7A" },
+    bosque: { name: "forest", tint: [16, 40, 30], accent: "#7CE0A8" },
   };
+  const LANGUAGES = {
+    en: { language:"Language",auto:"Album artwork",custom:"Custom",midnight:"Midnight",glacier:"Glacier",coral:"Coral",forest:"Forest",sleep:"Sleep timer",paused:"Sleep timer: playback paused",pauseIn:(m)=>"Sleep timer: pausing in "+m+" min",pauseAtEnd:"Sleep timer: pausing at the end of the track",closeShowcase:"Exit showcase mode (Esc)",showcase:"Showcase mode",trackPosition:"Track position",previous:"Previous",playPause:"Play or pause",next:"Next",color:"Color",glass:"Glass",effects:"Effects",blur:"Blur",opacity:"Opacity",radius:"Corner radius",brightness:"Background brightness",motion:"Background motion",equalizer:"Mini equalizer",spotlight:"Card spotlight",lowPower:"Low power mode",lowPowerHint:"Less blur and no animations",customColor:"Custom color",trackEnd:"At the end of the track",cancel:"Cancel",reset:"Reset to defaults",showcaseShortcut:"Showcase mode (Alt + S)",sleepHint:"Volume fades down before playback pauses, then returns to its previous level.",noLyrics:"No lyrics found for this track",off:"Off",remaining:(m,s)=>"Remaining "+m+":"+s },
+    es: { language:"Idioma",auto:"Portada del álbum",custom:"Personalizado",midnight:"Medianoche",glacier:"Glaciar",coral:"Coral",forest:"Bosque",sleep:"Temporizador de apagado",paused:"Temporizador: reproducción pausada",pauseIn:(m)=>"Temporizador: se pausará en "+m+" min",pauseAtEnd:"Temporizador: se pausará al acabar la canción",closeShowcase:"Salir del modo escaparate (Esc)",showcase:"Modo escaparate",trackPosition:"Posición de la canción",previous:"Anterior",playPause:"Reproducir o pausar",next:"Siguiente",color:"Color",glass:"Cristal",effects:"Efectos",blur:"Desenfoque",opacity:"Opacidad",radius:"Redondeo",brightness:"Brillo del fondo",motion:"Movimiento del fondo",equalizer:"Mini ecualizador",spotlight:"Foco de luz en tarjetas",lowPower:"Bajo consumo",lowPowerHint:"Menos desenfoque y sin animaciones",customColor:"Color personal",trackEnd:"Al acabar la canción",cancel:"Cancelar",reset:"Restablecer",showcaseShortcut:"Modo escaparate (Alt + S)",sleepHint:"Baja el volumen poco a poco antes de pausar y luego lo devuelve a su nivel.",noLyrics:"No hay letra para esta canción",off:"Apagado",remaining:(m,s)=>"Quedan "+m+":"+s },
+    tr: { language:"Dil",auto:"Albüm kapağı",custom:"Özel",midnight:"Gece Yarısı",glacier:"Buzul",coral:"Mercan",forest:"Orman",sleep:"Uyku zamanlayıcısı",paused:"Uyku zamanlayıcısı: müzik duraklatıldı",pauseIn:(m)=>"Uyku zamanlayıcısı: "+m+" dakika sonra duraklatılacak",pauseAtEnd:"Uyku zamanlayıcısı: şarkı bitince duraklatılacak",closeShowcase:"Vitrin modundan çık (Esc)",showcase:"Vitrin modu",trackPosition:"Şarkı konumu",previous:"Önceki",playPause:"Oynat veya duraklat",next:"Sonraki",color:"Renk",glass:"Cam",effects:"Efektler",blur:"Bulanıklık",opacity:"Saydamlık",radius:"Köşe yuvarlaklığı",brightness:"Arka plan parlaklığı",motion:"Arka plan hareketi",equalizer:"Mini ekolayzır",spotlight:"Kartlarda ışık odağı",lowPower:"Düşük güç tüketimi",lowPowerHint:"Daha az bulanıklık ve animasyonsuz görünüm",customColor:"Özel renk",trackEnd:"Şarkı bitince",cancel:"İptal et",reset:"Varsayılana döndür",showcaseShortcut:"Vitrin modu (Alt + S)",sleepHint:"Müzik duraklatılmadan önce ses düzeyi yavaşça düşürülür, ardından önceki seviyesine döndürülür.",noLyrics:"Bu şarkının sözleri bulunamadı",off:"Kapalı",remaining:(m,s)=>"Kalan "+m+":"+s }
+  };
+  const t = (key, ...args) => { const dict = LANGUAGES[settings.language] || LANGUAGES.en; const value = dict[key] ?? LANGUAGES.en[key] ?? key; return typeof value === "function" ? value(...args) : value; };
+
   const DEFAULTS = {
     color: "auto",          // auto | medianoche | glaciar | coral | bosque | custom
+    language: "en",
     custom: "#8EA2FF",
     blur: 36,               // px
     glass: 0.52,            // opacidad del cristal
@@ -44,6 +52,7 @@
     }
   }
   let settings = loadSettings();
+  if (!LANGUAGES[settings.language]) settings.language = "en";
 
   function saveSettings() {
     try { S.LocalStorage.set(STORE_KEY, JSON.stringify(settings)); } catch (e) { /* sin almacenamiento */ }
@@ -195,6 +204,8 @@
   const toHex = (rgb) => "#" + rgb.map((c) => c.toString(16).padStart(2, "0")).join("");
 
   async function onSongChange() {
+    // Handle the sleep timer immediately; artwork/color work below is asynchronous.
+    sleep.onSongChange();
     const item = S.Player.data && S.Player.data.item;
     if (!item) return;
     const url = coverUrl(item);
@@ -215,7 +226,6 @@
     applyColors();
     ensureEqualizer();
     if (showcase.open) showcase.load(item);
-    sleep.onSongChange();
   }
 
   /* ------------------------------------------------------------------ */
@@ -245,8 +255,17 @@
     eq.innerHTML = "<i></i><i></i><i></i><i></i>";
     host.appendChild(eq);
   }
-  // React vuelve a pintar el reproductor a veces; lo reponemos si desaparece.
-  new MutationObserver(() => ensureEqualizer()).observe(
+  // React vuelve a pintar el reproductor a veces; agrupamos mutaciones
+  // en un único chequeo por frame para evitar consultas repetidas al DOM.
+  let equalizerFrame = 0;
+  const equalizerObserver = new MutationObserver(() => {
+    if (equalizerFrame) return;
+    equalizerFrame = requestAnimationFrame(() => {
+      equalizerFrame = 0;
+      ensureEqualizer();
+    });
+  });
+  equalizerObserver.observe(
     document.querySelector(".Root__now-playing-bar") || document.body,
     { childList: true, subtree: true }
   );
@@ -273,22 +292,27 @@
   /* ------------------------------------------------------------------ */
 
   const FADE_MS = 30000;
+  const VOLUME_CHANGE_EPSILON = 0.025;
   const sleep = {
     mode: null,          // "time" | "track"
     endAt: 0,
-    startVolume: null,
+    startVolume: null,   // Son kullanıcı tarafından seçilen seviye; iptal sonrası buna döneriz.
+    fadeAnchorVolume: null,
+    fadeAnchorFactor: 1,
+    lastAppliedVolume: null,
     timer: 0,
     listeners: new Set(),
 
     start(mode, minutes) {
-      this.cancel(true);
+      // Önceki zamanlayıcı sesi kısmışsa yeni zamanlayıcıdan önce geri yükle.
+      this.cancel(false);
       this.mode = mode;
       this.endAt = mode === "time" ? Date.now() + minutes * 60000 : 0;
       this.timer = setInterval(() => this.tick(), 500);
       this.notify();
       S.showNotification(mode === "time"
-        ? "Temporizador: se pausará en " + minutes + " min"
-        : "Temporizador: se pausará al acabar la canción");
+        ? t("pauseIn", minutes)
+        : t("pauseAtEnd"));
     },
 
     remainingMs() {
@@ -301,24 +325,55 @@
       const left = this.remainingMs();
       const fadeWindow = this.mode === "track" ? 6000 : FADE_MS;
       if (left <= fadeWindow && S.Player.isPlaying()) {
-        if (this.startVolume === null) this.startVolume = S.Player.getVolume();
-        S.Player.setVolume(this.startVolume * (left / fadeWindow));
+        const currentVolume = S.Player.getVolume();
+        const factor = clamp(left / fadeWindow, 0, 1);
+
+        if (this.startVolume === null) {
+          this.startVolume = currentVolume;
+          this.fadeAnchorVolume = currentVolume;
+          this.fadeAnchorFactor = factor || 1;
+        } else if (
+          this.lastAppliedVolume !== null &&
+          Math.abs(currentVolume - this.lastAppliedVolume) > VOLUME_CHANGE_EPSILON
+        ) {
+          // Kullanıcı sesi elle değiştirdi: yeni değeri koru ve kalan fade'i buradan sürdür.
+          this.startVolume = currentVolume;
+          this.fadeAnchorVolume = currentVolume;
+          this.fadeAnchorFactor = factor || 1;
+        }
+
+        const fadeRatio = this.fadeAnchorFactor > 0
+          ? factor / this.fadeAnchorFactor
+          : 0;
+        const nextVolume = clamp(this.fadeAnchorVolume * fadeRatio, 0, 1);
+        S.Player.setVolume(nextVolume);
+        this.lastAppliedVolume = nextVolume;
       }
+
       if (this.mode === "time" && left <= 0) this.finish();
       this.notify();
     },
 
     onSongChange() {
-      if (this.mode === "track" && this.startVolume !== null) this.finish();
+      // Track timer ends on the first song change, even if the fade never started.
+      if (this.mode !== "track") return;
+      // Catch a manual volume adjustment made just before the track-change event.
+      if (
+        this.lastAppliedVolume !== null &&
+        Math.abs(S.Player.getVolume() - this.lastAppliedVolume) > VOLUME_CHANGE_EPSILON
+      ) {
+        this.startVolume = S.Player.getVolume();
+      }
+      this.finish();
     },
 
     finish() {
       S.Player.pause();
       const vol = this.startVolume;
       this.cancel(true);
-      // Devolvemos el volumen cuando ya está en pausa.
+      // Devolvemos el último volumen elegido por el usuario cuando ya está en pausa.
       if (vol !== null) setTimeout(() => S.Player.setVolume(vol), 800);
-      S.showNotification("Temporizador: reproducción pausada");
+      S.showNotification(t("paused"));
     },
 
     cancel(silent) {
@@ -327,15 +382,18 @@
       this.mode = null;
       this.endAt = 0;
       this.startVolume = null;
+      this.fadeAnchorVolume = null;
+      this.fadeAnchorFactor = 1;
+      this.lastAppliedVolume = null;
       this.timer = 0;
       this.notify();
     },
 
     label() {
-      if (!this.mode) return "Apagado";
-      if (this.mode === "track") return "Al acabar la canción";
+      if (!this.mode) return t("off");
+      if (this.mode === "track") return t("trackEnd");
       const s = Math.ceil(this.remainingMs() / 1000);
-      return "Quedan " + Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+      return t("remaining", Math.floor(s / 60), String(s % 60).padStart(2, "0"));
     },
 
     notify() { this.listeners.forEach((fn) => fn()); },
@@ -346,27 +404,50 @@
   /* ------------------------------------------------------------------ */
 
   const lyricsCache = new Map();
+  const lyricsRequests = new Map();
+  const LYRICS_CACHE_LIMIT = 100;
+
   async function fetchLyrics(uri) {
     if (lyricsCache.has(uri)) return lyricsCache.get(uri);
-    const id = (uri || "").split(":")[2];
-    let result = null;
-    if (id) {
+    if (lyricsRequests.has(uri)) return lyricsRequests.get(uri);
+
+    // Solo aceptamos URIs de pistas válidas; entradas inválidas no se cachean.
+    const match = /^spotify:track:([a-zA-Z0-9]+)$/.exec(uri || "");
+    if (!match) return null;
+
+    const request = (async () => {
       try {
         const res = await S.CosmosAsync.get(
-          "https://spclient.wg.spotify.com/color-lyrics/v2/track/" + id +
+          "https://spclient.wg.spotify.com/color-lyrics/v2/track/" + match[1] +
           "?format=json&vocalRemoval=false&market=from_token"
         );
         const l = res && res.lyrics;
-        if (l && Array.isArray(l.lines)) {
-          const lines = l.lines
-            .map((x) => ({ t: Number(x.startTimeMs) || 0, text: (x.words || "").trim() }))
-            .filter((x) => x.text && x.text !== "♪");
-          if (lines.length) result = { synced: l.syncType === "LINE_SYNCED", lines };
+        if (!l || !Array.isArray(l.lines)) return null;
+
+        const lines = l.lines
+          .map((x) => ({ t: Number(x.startTimeMs) || 0, text: (x.words || "").trim() }))
+          .filter((x) => x.text && x.text !== "♪");
+        if (!lines.length) return null;
+
+        const result = { synced: l.syncType === "LINE_SYNCED", lines };
+        // Cacheamos únicamente respuestas útiles. Errores y ausencia de letras
+        // no se guardan, así una consulta posterior puede recuperarse.
+        if (lyricsCache.size >= LYRICS_CACHE_LIMIT) {
+          lyricsCache.delete(lyricsCache.keys().next().value);
         }
-      } catch (e) { /* sin letra */ }
+        lyricsCache.set(uri, result);
+        return result;
+      } catch (e) {
+        return null;
+      }
+    })();
+
+    lyricsRequests.set(uri, request);
+    try {
+      return await request;
+    } finally {
+      lyricsRequests.delete(uri);
     }
-    lyricsCache.set(uri, result);
-    return result;
   }
 
   /* ------------------------------------------------------------------ */
@@ -392,10 +473,11 @@
       el.className = "aura-showcase";
       el.setAttribute("role", "dialog");
       el.setAttribute("aria-modal", "true");
-      el.setAttribute("aria-label", "Modo escaparate");
+      el.setAttribute("aria-label", t("showcase"));
+      el.setAttribute("tabindex", "-1");
       el.innerHTML = [
         '<div class="aura-sc-bg" aria-hidden="true"></div>',
-        '<button class="aura-sc-close" type="button" aria-label="Salir del modo escaparate (Esc)">✕</button>',
+        '<button class="aura-sc-close" type="button" aria-label="' + t("closeShowcase") + '">✕</button>',
         '<div class="aura-sc-clock" aria-hidden="true"></div>',
         '<div class="aura-sc-stage">',
         '  <div class="aura-sc-disc" aria-hidden="true">',
@@ -408,20 +490,20 @@
         '    <div class="aura-sc-lyrics" aria-live="off"></div>',
         '    <div class="aura-sc-progress">',
         '      <span class="aura-sc-time aura-sc-elapsed">0:00</span>',
-        '      <div class="aura-sc-bar" role="slider" tabindex="0" aria-label="Posición de la canción" aria-valuemin="0">',
+        '      <div class="aura-sc-bar" role="slider" tabindex="0" aria-label="' + t("trackPosition") + '" aria-valuemin="0">',
         '        <div class="aura-sc-fill"></div>',
         '      </div>',
         '      <span class="aura-sc-time aura-sc-total">0:00</span>',
         '    </div>',
         '    <div class="aura-sc-controls">',
-        '      <button type="button" class="aura-sc-btn" data-act="back" aria-label="Anterior">',
+        '      <button type="button" class="aura-sc-btn" data-act="back" aria-label="' + t("previous") + '">',
         '        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.3 1a.7.7 0 0 1 .7.7v5.15l9.95-5.744a.7.7 0 0 1 1.05.606v12.575a.7.7 0 0 1-1.05.607L4 9.149V14.3a.7.7 0 0 1-.7.7H1.7a.7.7 0 0 1-.7-.7V1.7a.7.7 0 0 1 .7-.7h1.6z"/></svg>',
         '      </button>',
-        '      <button type="button" class="aura-sc-btn aura-sc-play" data-act="toggle" aria-label="Reproducir o pausar">',
+        '      <button type="button" class="aura-sc-btn aura-sc-play" data-act="toggle" aria-label="' + t("playPause") + '">',
         '        <svg class="aura-i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"/></svg>',
         '        <svg class="aura-i-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7H2.7zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-2.6z"/></svg>',
         '      </button>',
-        '      <button type="button" class="aura-sc-btn" data-act="next" aria-label="Siguiente">',
+        '      <button type="button" class="aura-sc-btn" data-act="next" aria-label="' + t("next") + '">',
         '        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.712v12.575a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-1.6z"/></svg>',
         '      </button>',
         '    </div>',
@@ -459,8 +541,37 @@
       });
 
       el.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") { e.stopPropagation(); this.toggle(false); }
-        if (e.key === " " && e.target === el) { e.preventDefault(); S.Player.togglePlay(); }
+        if (e.key === "Escape") { e.stopPropagation(); this.toggle(false); return; }
+        if (e.key === " " && e.target === el) { e.preventDefault(); S.Player.togglePlay(); return; }
+        if (e.key !== "Tab" || !this.open) return;
+
+        // Keep keyboard focus inside the modal showcase.
+        const focusable = [...el.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )].filter((node) =>
+          !node.hidden &&
+          node.getAttribute("aria-hidden") !== "true" &&
+          node.getClientRects().length > 0
+        );
+        if (!focusable.length) {
+          e.preventDefault();
+          el.focus();
+          return;
+        }
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        if (!el.contains(active)) {
+          e.preventDefault();
+          (e.shiftKey ? last : first).focus();
+        } else if (e.shiftKey && (active === first || active === el)) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
       });
 
       document.body.appendChild(el);
@@ -510,7 +621,7 @@
       if (!lyrics) {
         const p = document.createElement("p");
         p.className = "aura-sc-line is-note";
-        p.textContent = "Sin letra para esta canción";
+        p.textContent = t("noLyrics");
         box.appendChild(p);
         return;
       }
@@ -544,7 +655,7 @@
       const bar = el.querySelector(".aura-sc-bar");
       bar.setAttribute("aria-valuemax", String(Math.round(dur / 1000)));
       bar.setAttribute("aria-valuenow", String(Math.round(pos / 1000)));
-      bar.setAttribute("aria-valuetext", fmt(pos) + " de " + fmt(dur));
+      bar.setAttribute("aria-valuetext", fmt(pos) + " / " + fmt(dur));
       el.classList.toggle("is-playing", S.Player.isPlaying());
 
       const now = new Date();
@@ -639,13 +750,13 @@
     const same = (v) => v;
 
     // Colores
-    const colorOptions = [["auto", "Portada"]].concat(
-      Object.entries(PRESETS).map(([k, p]) => [k, p.name]),
-      [["custom", "Personal"]]
+    const colorOptions = [["auto", t("auto")]].concat(
+      Object.entries(PRESETS).map(([k, p]) => [k, t(p.name)]),
+      [["custom", t("custom")]]
     );
-    const swatches = el("div", { class: "aura-swatches", role: "radiogroup", "aria-label": "Color del cristal" });
+    const swatches = el("div", { class: "aura-swatches", role: "radiogroup", "aria-label": t("color") });
     const picker = el("input", {
-      type: "color", value: settings.custom, "aria-label": "Color personal",
+      type: "color", value: settings.custom, "aria-label": t("customColor"),
       oninput: (e) => {
         settings.custom = e.target.value;
         settings.color = "custom";
@@ -692,37 +803,40 @@
     const updateSleep = () => { sleepStatus.textContent = sleep.label(); };
     sleep.listeners.add(updateSleep);
     const sleepButtons = el("div", { class: "aura-chips" }, [15, 30, 45, 60].map((m) =>
-      el("button", { type: "button", class: "aura-chip", text: m + " min", onclick: () => sleep.start("time", m) })
+      el("button", { type: "button", class: "aura-chip", text: m + (settings.language === "en" ? " min" : " min"), onclick: () => sleep.start("time", m) })
     ).concat([
-      el("button", { type: "button", class: "aura-chip", text: "Al acabar la canción", onclick: () => sleep.start("track") }),
-      el("button", { type: "button", class: "aura-chip aura-chip-quiet", text: "Cancelar", onclick: () => sleep.cancel() }),
+      el("button", { type: "button", class: "aura-chip", text: t("trackEnd"), onclick: () => sleep.start("track") }),
+      el("button", { type: "button", class: "aura-chip aura-chip-quiet", text: t("cancel"), onclick: () => sleep.cancel() }),
     ]));
 
+    const languageSelect = el("select", { "aria-label": t("language"), onchange: (e) => { settings.language = e.target.value; saveSettings(); S.PopupModal.hide(); openStudio(); } }, ["en", "es", "tr"].map((code) => el("option", { value: code, text: ({ en: "English", es: "Español", tr: "Türkçe" })[code] })) );
+    languageSelect.value = settings.language;
     const content = el("div", { class: "aura-studio" }, [
-      el("section", {}, [el("h3", { text: "Color" }), swatches, el("div", { class: "aura-row" }, [
-        el("label", { text: "Color personal" }), picker,
+      el("section", {}, [el("h3", { text: t("language") }), languageSelect]),
+      el("section", {}, [el("h3", { text: t("color") }), swatches, el("div", { class: "aura-row" }, [
+        el("label", { text: t("customColor") }), picker,
       ])]),
       el("section", {}, [
-        el("h3", { text: "Cristal" }),
-        rangeRow("Desenfoque", "blur", 8, 60, 1, " px", same),
-        rangeRow("Opacidad", "glass", 0.3, 0.85, 0.01, " %", pct),
-        rangeRow("Redondeo", "radius", 6, 32, 1, " px", same),
-        rangeRow("Brillo del fondo", "brightness", 0.3, 1, 0.01, " %", pct),
+        el("h3", { text: t("glass") }),
+        rangeRow(t("blur"), "blur", 8, 60, 1, " px", same),
+        rangeRow(t("opacity"), "glass", 0.3, 0.85, 0.01, " %", pct),
+        rangeRow(t("radius"), "radius", 6, 32, 1, " px", same),
+        rangeRow(t("brightness"), "brightness", 0.3, 1, 0.01, " %", pct),
       ]),
       el("section", {}, [
-        el("h3", { text: "Efectos" }),
-        toggleRow("Movimiento del fondo", "motion"),
-        toggleRow("Mini ecualizador", "equalizer"),
-        toggleRow("Foco de luz en tarjetas", "spotlight"),
-        toggleRow("Bajo consumo", "lowPower", "Menos desenfoque y sin animaciones"),
+        el("h3", { text: t("effects") }),
+        toggleRow(t("motion"), "motion"),
+        toggleRow(t("equalizer"), "equalizer"),
+        toggleRow(t("spotlight"), "spotlight"),
+        toggleRow(t("lowPower"), "lowPower", t("lowPowerHint")),
       ]),
-      el("section", {}, [el("h3", { text: "Temporizador de apagado" }), sleepButtons, sleepStatus,
-        el("p", { class: "aura-hint", text: "Baja el volumen poco a poco antes de pausar y luego lo devuelve a su nivel." })]),
+      el("section", {}, [el("h3", { text: t("sleep") }), sleepButtons, sleepStatus,
+        el("p", { class: "aura-hint", text: t("sleepHint") })]),
       el("section", { class: "aura-studio-footer" }, [
-        el("button", { type: "button", class: "aura-chip", text: "Modo escaparate (Alt + S)", onclick: () => { S.PopupModal.hide(); showcase.toggle(true); } }),
+        el("button", { type: "button", class: "aura-chip", text: t("showcaseShortcut"), onclick: () => { S.PopupModal.hide(); showcase.toggle(true); } }),
         el("button", {
-          type: "button", class: "aura-chip aura-chip-quiet", text: "Restablecer",
-          onclick: () => { settings = Object.assign({}, DEFAULTS); saveSettings(); applySettings(); S.PopupModal.hide(); openStudio(); },
+          type: "button", class: "aura-chip aura-chip-quiet", text: t("reset"),
+          onclick: () => { const language = settings.language; settings = Object.assign({}, DEFAULTS, { language }); saveSettings(); applySettings(); S.PopupModal.hide(); openStudio(); },
         }),
       ]),
     ]);
@@ -742,8 +856,8 @@
 
   const ICON_STUDIO = '<svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13c.9 0 1.4-.6 1.4-1.3 0-.4-.2-.7-.4-1-.2-.2-.3-.5-.3-.8 0-.7.6-1.2 1.3-1.2h1.4A3.1 3.1 0 0 0 14.5 7C14.5 3.9 11.6 1.5 8 1.5zM4.5 8.2a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm2-2.7a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm3 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm2 2.7a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>';
   const ICON_SHOWCASE = '<svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>';
-  new S.Topbar.Button("Ajustes de Aura Glass", ICON_STUDIO, openStudio);
-  new S.Topbar.Button("Modo escaparate (Alt + S)", ICON_SHOWCASE, () => showcase.toggle(true));
+  new S.Topbar.Button("Aura Glass ayarları", ICON_STUDIO, openStudio);
+  new S.Topbar.Button(t("showcaseShortcut"), ICON_SHOWCASE, () => showcase.toggle(true));
 
   /* ------------------------------------------------------------------ */
   /* Arranque                                                             */
